@@ -14,7 +14,7 @@ contract ProfileNFTTest is Test {
     function testMintTo() public {
         address recipient = address(0x123);
         uint256 tokenId = 1;
-        profileNFT.mintTo{value: 0.1 ether}(recipient, tokenId);
+        profileNFT.mintTo(recipient, tokenId);
         assertEq(profileNFT.ownerOf(tokenId), recipient);
     }
 

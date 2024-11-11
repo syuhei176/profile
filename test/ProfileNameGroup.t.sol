@@ -58,7 +58,7 @@ contract ProfileNameGroupTest is Test {
     function testSetNameRevertsIfEmpty() public {
         vm.startPrank(address(profileRegistry));
 
-        vm.expectRevert("Name cannot be empty");
+        vm.expectRevert("Name too short");
         profileNameGroup.updateName(user, "");
 
         vm.stopPrank();

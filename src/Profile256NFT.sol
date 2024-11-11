@@ -12,7 +12,7 @@ contract Profile256NFT is ERC721 {
         string memory _symbol
     ) ERC721(_name, _symbol) {}
 
-    function mintTo(address recipient, uint256 tokenId) public payable returns (uint256) {
+    function mintTo(address recipient, uint256 tokenId) public returns (uint256) {
         _mint(recipient, tokenId);
 
         return tokenId;
