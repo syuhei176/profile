@@ -1,16 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-
 import {ERC721} from "solmate/tokens/ERC721.sol";
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 import {Base64} from "openzeppelin-contracts/contracts/utils/Base64.sol";
 
 contract Profile256NFT is ERC721 {
-    constructor(
-        string memory _name,
-        string memory _symbol
-    ) ERC721(_name, _symbol) {}
+    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
 
     function mintTo(address recipient, uint256 tokenId) public returns (uint256) {
         _mint(recipient, tokenId);
@@ -29,29 +25,28 @@ contract Profile256NFT is ERC721 {
         string memory description = string(abi.encodePacked("256 bits image of ", name));
         string memory image = Base64.encode(generatePixelArt(bytes32(id)));
 
-        return
-            string(
-                abi.encodePacked(
-                    'data:application/json;base64,',
-                    Base64.encode(
-                        bytes(
-                            abi.encodePacked(
-                                '{"name":"',
-                                name,
-                                '", "description":"',
-                                description,
-                                '", "image": "',
-                                'data:image/svg+xml;base64,',
-                                image,
-                                '"}'
-                            )
+        return string(
+            abi.encodePacked(
+                "data:application/json;base64,",
+                Base64.encode(
+                    bytes(
+                        abi.encodePacked(
+                            '{"name":"',
+                            name,
+                            '", "description":"',
+                            description,
+                            '", "image": "',
+                            "data:image/svg+xml;base64,",
+                            image,
+                            '"}'
                         )
                     )
                 )
-            );
+            )
+        );
     }
 
-   function generatePixelArt(bytes32 data) public pure returns (bytes memory) {
+    function generatePixelArt(bytes32 data) public pure returns (bytes memory) {
         string memory svgStart = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='320' height='320'>";
         string memory svgEnd = "</svg>";
         string memory svgContent;
@@ -64,11 +59,18 @@ contract Profile256NFT is ERC721 {
                 string memory color = colorValue == 1 ? "rgb(255,255,255)" : "rgb(5,5,5)";
 
                 // ピクセルの四角形をSVGで定義
-                svgContent = string(abi.encodePacked(
-                    svgContent,
-                    "<rect width='1' height='1' x='", uint2str(j), "' y='", uint2str(i),
-                    "' fill='", color, "'/>"
-                ));
+                svgContent = string(
+                    abi.encodePacked(
+                        svgContent,
+                        "<rect width='1' height='1' x='",
+                        uint2str(j),
+                        "' y='",
+                        uint2str(i),
+                        "' fill='",
+                        color,
+                        "'/>"
+                    )
+                );
             }
         }
 
@@ -94,7 +96,7 @@ contract Profile256NFT is ERC721 {
         bytes memory bstr = new bytes(length);
         uint256 k = length;
         while (_i != 0) {
-            k = k-1;
+            k = k - 1;
             uint8 temp = (48 + uint8(_i - _i / 10 * 10));
             bytes1 b1 = bytes1(temp);
             bstr[k] = b1;

@@ -29,16 +29,12 @@ contract ProfileRegistry {
     event ProfileNameUpdated(address indexed user, address nameContract, string name);
     event ProfileImageUpdated(address indexed user, address nftContract, uint256 tokenId);
 
-    function createProfileContract(string memory baseName, uint8 minNameLength) public returns (address) {
+    function registerProfileContract(string memory baseName, address profileNameGroup) public {
         require(nameGroups[baseName] == address(0), "Profile contract already exists");
 
-        address nameContract = address(new ProfileNameGroup(address(this), baseName, minNameLength));
+        nameGroups[baseName] = profileNameGroup;
 
-        nameGroups[baseName] = nameContract;
-
-        emit ProfileNameGroupCreated(nameContract, baseName);
-
-        return nameContract;
+        emit ProfileNameGroupCreated(profileNameGroup, baseName);
     }
 
     function updateProfile(address nameContract, string memory newName, address nftContract, uint256 tokenId) public {
@@ -55,11 +51,7 @@ contract ProfileRegistry {
 
         ProfileNameGroup(nameContract).updateName(sender, newName);
 
-        emit ProfileNameUpdated(
-            sender,
-            nameContract,
-            newName
-        );
+        emit ProfileNameUpdated(sender, nameContract, newName);
     }
 
     function setProfileImage(address nftContract, uint256 tokenId) public {
@@ -72,11 +64,11 @@ contract ProfileRegistry {
 
         validateProfileImage(sender);
 
-        emit ProfileImageUpdated(
-            sender,
-            nftContract,
-            tokenId
-        );
+        emit ProfileImageUpdated(sender, nftContract, tokenId);
+    }
+
+    function getAddressByName(string memory baseName, string memory name) public view returns (address) {
+        return ProfileNameGroup(nameGroups[baseName]).getAddress(name);
     }
 
     function getProfile(address user) public view returns (ProfileView memory) {
@@ -84,11 +76,7 @@ contract ProfileRegistry {
 
         string memory name = ProfileNameGroup(profile.nameAddress).getName(user);
 
-        return ProfileView(
-            profile.nameAddress,
-            name,
-            profile.image
-        );
+        return ProfileView(profile.nameAddress, name, profile.image);
     }
 
     function validateProfileImage(address user) public view returns (bool) {

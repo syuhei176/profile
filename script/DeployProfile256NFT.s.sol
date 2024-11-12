@@ -11,9 +11,9 @@ contract DeployProfile256NFT is Script {
     function run() public returns (Profile256NFT profile256NFT) {
         vm.startBroadcast();
 
-        profile256NFT = new Profile256NFT{
-            salt: 0x0000000000000000000000000000000000000000000000000000000000000777
-        }("Profile256NFT", "P256");
+        profile256NFT = new Profile256NFT{salt: 0x0000000000000000000000000000000000000000000000000000000000000777}(
+            "Profile256NFT", "P256"
+        );
 
         vm.stopBroadcast();
 

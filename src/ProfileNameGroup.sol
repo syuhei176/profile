@@ -10,22 +10,25 @@ contract ProfileNameGroup is IProfileNameGroup {
 
     address public profileRegistry;
 
-    string public baseName;
-    uint8 immutable public minNameLength;
+    uint8 public immutable minNameLength;
+    uint8 public immutable maxNameLength;
+
+    error OnlyProfileRegistry();
+    error NameTooShort();
+    error NameTooLong();
+    error NameAlreadyTaken();
 
     modifier onlyProfileRegistry() {
-        require(msg.sender == profileRegistry, "Only the profile registry can call this function");
+        if (msg.sender != profileRegistry) {
+            revert OnlyProfileRegistry();
+        }
         _;
     }
 
-    constructor(
-        address _profileRegistry,
-        string memory _baseName,
-        uint8 _minNameLength
-    ) {
+    constructor(address _profileRegistry, uint8 _minNameLength, uint8 _maxNameLength) {
         profileRegistry = _profileRegistry;
-        baseName = _baseName;
         minNameLength = _minNameLength;
+        maxNameLength = _maxNameLength;
     }
 
     function getName(address user) public view returns (string memory) {
@@ -38,14 +41,20 @@ contract ProfileNameGroup is IProfileNameGroup {
 
     function updateName(address user, string memory newName) public onlyProfileRegistry {
         delete nameToAddress[addressToName[user]];
-        
+
         _setName(user, newName);
     }
 
     function _setName(address user, string memory name) internal {
-        require(bytes(name).length > minNameLength, "Name too short");
-
-        require(nameToAddress[name] == address(0), "Name already taken");
+        if (bytes(name).length <= minNameLength) {
+            revert NameTooShort();
+        }
+        if (bytes(name).length > maxNameLength) {
+            revert NameTooLong();
+        }
+        if (nameToAddress[name] != address(0)) {
+            revert NameAlreadyTaken();
+        }
 
         addressToName[user] = name;
         nameToAddress[name] = user;

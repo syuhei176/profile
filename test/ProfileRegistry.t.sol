@@ -13,20 +13,23 @@ contract ProfileRegistryTest is Test {
 
     function setUp() public {
         profileRegistry = new ProfileRegistry();
-        profileNameGroup = new ProfileNameGroup(address(profileRegistry), "baseName", 1);
+        profileNameGroup = new ProfileNameGroup(address(profileRegistry), 1, 100);
         profileNFT = new Profile256NFT("Profile256NFT", "PNFT");
+
+        profileRegistry.registerProfileContract("baseName", address(profileNameGroup));
     }
 
-    function testCreateProfileContract() public {
-        address newProfileNameGroup = profileRegistry.createProfileContract("newBaseName", 1);
-        assertTrue(newProfileNameGroup != address(0));
+    function testRegisterProfileContract() public {
+        ProfileNameGroup newGroup = new ProfileNameGroup(address(profileRegistry), 1, 100);
+
+        profileRegistry.registerProfileContract("newBaseName", address(newGroup));
     }
 
-    function testCreateProfileContractRevertsIfAlreadyExists() public {
-        profileRegistry.createProfileContract("newBaseName", 1);
+    function testRegisterProfileContractRevertsIfAlreadyExists() public {
+        ProfileNameGroup newGroup = new ProfileNameGroup(address(profileRegistry), 1, 100);
 
         vm.expectRevert("Profile contract already exists");
-        profileRegistry.createProfileContract("newBaseName", 1);
+        profileRegistry.registerProfileContract("baseName", address(newGroup));
     }
 
     function testUpdateProfile() public {
@@ -59,6 +62,25 @@ contract ProfileRegistryTest is Test {
         ProfileView memory profile = profileRegistry.getProfile(user);
         assertEq(profile.nameAddress, nameContract);
         assertEq(profile.name, newName);
+    }
+
+    function testGetAddressByName() public {
+        address nameContract = address(profileNameGroup);
+        string memory newName = "testName";
+
+        vm.startPrank(user);
+        profileRegistry.setProfileName(nameContract, newName);
+        vm.stopPrank();
+
+        address addressByName = profileRegistry.getAddressByName("baseName", newName);
+        assertEq(addressByName, user);
+
+        vm.startPrank(user);
+        profileRegistry.setProfileName(nameContract, "otherName");
+        vm.stopPrank();
+
+        address addressByName2 = profileRegistry.getAddressByName("baseName", "testName");
+        assertEq(addressByName2, address(0));
     }
 
     function testSetProfileImage() public {

@@ -13,7 +13,7 @@ contract ProfileNameGroupTest is Test {
 
     function setUp() public {
         profileRegistry = new ProfileRegistry();
-        profileNameGroup = new ProfileNameGroup(address(profileRegistry), "baseName", 1);
+        profileNameGroup = new ProfileNameGroup(address(profileRegistry), 1, 20);
     }
 
     function testGetName() public {
@@ -46,7 +46,7 @@ contract ProfileNameGroupTest is Test {
         assertEq(profileNameGroup.getName(user), name);
         assertEq(profileNameGroup.getAddress(name), user);
 
-        string memory newName = "newTestName";
+        string memory newName = "testNewName";
         profileNameGroup.updateName(user, newName);
         assertEq(profileNameGroup.getName(user), newName);
         assertEq(profileNameGroup.getAddress(newName), user);
@@ -58,7 +58,7 @@ contract ProfileNameGroupTest is Test {
     function testSetNameRevertsIfEmpty() public {
         vm.startPrank(address(profileRegistry));
 
-        vm.expectRevert("Name too short");
+        vm.expectRevert(ProfileNameGroup.NameTooShort.selector);
         profileNameGroup.updateName(user, "");
 
         vm.stopPrank();
@@ -69,7 +69,7 @@ contract ProfileNameGroupTest is Test {
 
         profileNameGroup.updateName(user, "testName");
 
-        vm.expectRevert("Name already taken");
+        vm.expectRevert(ProfileNameGroup.NameAlreadyTaken.selector);
         profileNameGroup.updateName(user2, "testName");
 
         vm.stopPrank();
@@ -83,10 +83,9 @@ contract ProfileNameGroupTest is Test {
 
         profileNameGroup.updateName(user2, "testName");
 
-        vm.expectRevert("Name already taken");
+        vm.expectRevert(ProfileNameGroup.NameAlreadyTaken.selector);
         profileNameGroup.updateName(user2, "testName2");
 
         vm.stopPrank();
     }
-
 }
