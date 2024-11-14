@@ -37,11 +37,11 @@ contract ProfileRegistryTest is Test {
         string memory newName = "testName";
         address nftContract = address(profileNFT);
         uint256 tokenId = 1;
-
+        bytes32 metadata = bytes32("testMetadata");
         profileNFT.mintTo(user, tokenId);
 
         vm.startPrank(user);
-        profileRegistry.updateProfile(nameContract, newName, nftContract, tokenId);
+        profileRegistry.updateProfile(nameContract, newName, nftContract, tokenId, metadata);
         vm.stopPrank();
 
         ProfileView memory profile = profileRegistry.getProfile(user);

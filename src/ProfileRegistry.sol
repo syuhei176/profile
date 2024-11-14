@@ -12,12 +12,14 @@ struct Resource {
 struct Profile {
     address nameAddress;
     Resource image;
+    bytes32 metadata;
 }
 
 struct ProfileView {
     address nameAddress;
     string name;
     Resource image;
+    bytes32 metadata;
 }
 
 contract ProfileRegistry {
@@ -37,9 +39,16 @@ contract ProfileRegistry {
         emit ProfileNameGroupCreated(profileNameGroup, baseName);
     }
 
-    function updateProfile(address nameContract, string memory newName, address nftContract, uint256 tokenId) public {
+    function updateProfile(
+        address nameContract,
+        string memory newName,
+        address nftContract,
+        uint256 tokenId,
+        bytes32 metadata
+    ) public {
         setProfileName(nameContract, newName);
         setProfileImage(nftContract, tokenId);
+        setProfileMetadata(metadata);
     }
 
     function setProfileName(address nameContract, string memory newName) public {
@@ -67,6 +76,10 @@ contract ProfileRegistry {
         emit ProfileImageUpdated(sender, nftContract, tokenId);
     }
 
+    function setProfileMetadata(bytes32 metadata) public {
+        profiles[msg.sender].metadata = metadata;
+    }
+
     function getAddressByName(string memory baseName, string memory name) public view returns (address) {
         return ProfileNameGroup(nameGroups[baseName]).getAddress(name);
     }
@@ -76,7 +89,7 @@ contract ProfileRegistry {
 
         string memory name = ProfileNameGroup(profile.nameAddress).getName(user);
 
-        return ProfileView(profile.nameAddress, name, profile.image);
+        return ProfileView(profile.nameAddress, name, profile.image, profile.metadata);
     }
 
     function validateProfileImage(address user) public view returns (bool) {
