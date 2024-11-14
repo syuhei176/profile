@@ -30,6 +30,7 @@ contract ProfileRegistry {
     event ProfileNameGroupCreated(address indexed nameContract, string baseName);
     event ProfileNameUpdated(address indexed user, address nameContract, string name);
     event ProfileImageUpdated(address indexed user, address nftContract, uint256 tokenId);
+    event ProfileMetadataUpdated(address indexed user, bytes32 metadata);
 
     function registerProfileContract(string memory baseName, address profileNameGroup) public {
         require(nameGroups[baseName] == address(0), "Profile contract already exists");
@@ -78,6 +79,8 @@ contract ProfileRegistry {
 
     function setProfileMetadata(bytes32 metadata) public {
         profiles[msg.sender].metadata = metadata;
+
+        emit ProfileMetadataUpdated(msg.sender, metadata);
     }
 
     function getAddressByName(string memory baseName, string memory name) public view returns (address) {
